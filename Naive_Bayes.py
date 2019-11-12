@@ -13,17 +13,15 @@ def read_document(document):
             labels.append(words[1])
         return docs, labels
 
-all_docs, all_labels = read_document('all_Sentiment_shuffled.txt')
-split_point = int(0.80*len(all_docs))
-train_docs = all_docs[:split_point]
-train_labels = all_labels[:split_point]
-eval_docs = all_docs[split_point:]
-eval_labels = all_labels[split_point:]
+
 
 def train_documents(documents,label):
     dict_log_prob ={}
+    dict_label_log_prob =Counter()
     dict_total_words =Counter()
+    total_label = 0
     for i in range(len(documents)):
+        dict_label_log_prob[label[i]] +=1
         if label[i] not in dict_log_prob:
             dict_log_prob[label[i]] = Counter()
         for members in documents[i]:
@@ -37,8 +35,35 @@ def train_documents(documents,label):
         dict_total_words[label]=dict_total_words[label]+0.5*len(dict_log_prob[label])
     for dict_label in dict_log_prob:
         for word in dict_log_prob[dict_label]:
-            dict_log_prob[dict_label][word] = dict_log_prob[dict_label][word] /math.log(dict_total_words[dict_label])
-    total=0
-    return dict_log_prob
+            dict_log_prob[dict_label][word] = math.log(dict_log_prob[dict_label][word] / dict_total_words[dict_label])
 
-print(train_documents(all_docs,all_labels))
+    for dict_label in dict_label_log_prob:
+        total_label=   total_label+ dict_label_log_prob[dict_label]
+    for dict_label in dict_label_log_prob:
+        dict_label_log_prob[dict_label] = math.log(dict_label_log_prob[dict_label]/total_label)
+    return dict_log_prob, dict_label_log_prob
+
+def score_doc_label(document,label,log_prob,label_log_prob):
+    total_log_prob =0
+    for words in document:
+        total_log_prob +=log_prob[label][words]
+    total_log_prob+=label_log_prob[label]
+    return total_log_prob
+
+def classify_nb(document,log_prob,label_log_prob):
+    label = None
+    score = -9999
+    for labels in label_log_prob:
+        log_score = score_doc_label(document,labels,log_prob,label_log_prob)
+        if score < log_score:
+            score = log_score
+            label = labels
+    return label
+
+all_docs, all_labels = read_document('all_Sentiment_shuffled.txt')
+split_point = int(0.80*len(all_docs))
+train_docs = all_docs[:split_point]
+train_labels = all_labels[:split_point]
+eval_docs = all_docs[split_point:]
+eval_labels = all_labels[split_point:]
+log_prob,label_log_prob = train_documents(train_docs,train_labels)
