@@ -2,7 +2,7 @@ from __future__ import division
 from codecs import open
 from collections import Counter
 import math
-
+from sys import maxsize
 def read_document(document):
     docs = []
     labels = []
@@ -52,7 +52,7 @@ def score_doc_label(document,label,log_prob,label_log_prob):
 
 def classify_nb(document,log_prob,label_log_prob):
     label = None
-    score = -9999
+    score = -maxsize
     for labels in label_log_prob:
         log_score = score_doc_label(document,labels,log_prob,label_log_prob)
         if score < log_score:
@@ -60,6 +60,43 @@ def classify_nb(document,log_prob,label_log_prob):
             label = labels
     return label
 
+def classify_documents(docs,log_prob,label_log_prob):
+    dict_label = []
+    for document in docs:
+        dict_label.append(classify_nb(document,log_prob,label_log_prob))
+    return dict_label
+
+def accuracy(true_labels,guessed_labels):
+    correct_guess = 0
+    total_guess = 0
+    list_index = []
+    for i in range(len(true_labels)):
+        total_guess +=1
+        if true_labels[i] == guessed_labels[i]:
+            correct_guess+=1
+        else:
+            list_index.append(i)
+    return correct_guess/total_guess,list_index
+
+def find_high_error(documents,index,log_prob,log_label_prob):
+    list_wrong_score = []
+    extreme_list =[]
+    indexing = None
+    counter = 0
+    while counter!=4:
+        score1 = maxsize
+
+        for indexes in index:
+            if indexes not in extreme_list:
+                score = 0
+                for labels in log_label_prob:
+                    score+=score_doc_label(documents[indexes],labels,log_prob,label_log_prob)
+                if score<score1:
+                    score1 = score
+                    indexing = indexes
+        extreme_list.append(indexing)
+        counter+=1
+    return extreme_list
 all_docs, all_labels = read_document('all_Sentiment_shuffled.txt')
 split_point = int(0.80*len(all_docs))
 train_docs = all_docs[:split_point]
@@ -67,3 +104,11 @@ train_labels = all_labels[:split_point]
 eval_docs = all_docs[split_point:]
 eval_labels = all_labels[split_point:]
 log_prob,label_log_prob = train_documents(train_docs,train_labels)
+guessed_labels = classify_documents(eval_docs,log_prob,label_log_prob)
+accuracy,index = accuracy(eval_labels,guessed_labels)
+list_high_innacuracy = find_high_error(eval_docs,index,log_prob,label_log_prob)
+print(accuracy)
+for item in list_high_innacuracy:
+    print(eval_labels[item])
+    print(guessed_labels[item])
+    print(eval_docs[item])
