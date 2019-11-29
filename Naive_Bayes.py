@@ -78,6 +78,21 @@ def accuracy(true_labels,guessed_labels):
             list_index.append(i)
     return correct_guess/total_guess,list_index
 
+def class_accuracy(true_labels,guessed_labels):
+    class_list = {}
+    for members in true_labels:
+        if members not in class_list:
+            class_list[members] = 1
+        else:
+            class_list[members]+=1
+    for members in class_list:
+        correct_guess = 0
+        for i in range(len(true_labels)):
+            if true_labels[i] == members:
+                if true_labels[i] == guessed_labels[i]:
+                    correct_guess += 1
+        class_list[members] = correct_guess/class_list[members]
+    return class_list
 def find_high_error(documents,index,log_prob,log_label_prob):
     list_wrong_score = []
     extreme_list =[]
@@ -107,10 +122,17 @@ log_prob,label_log_prob = train_documents(train_docs,train_labels)
 guessed_labels = classify_documents(eval_docs,log_prob,label_log_prob)
 accuracy,index = accuracy(eval_labels,guessed_labels)
 list_high_innacuracy = find_high_error(eval_docs,index,log_prob,label_log_prob)
+class_list_accuracy = class_accuracy(eval_labels,guessed_labels)
+print("The accuracy of the classifier on the test set is: ", end = '')
 print(accuracy)
 for item in list_high_innacuracy:
+    print("The correct label is:", end = '')
     print(eval_labels[item])
+    print("The guessed label is:", end = '')
     print(guessed_labels[item])
+    print("The guessed document is:", end = '')
     print(eval_docs[item])
 #Task 4:
 #
+print("The accuracy of each class is:",end = '')
+print(class_list_accuracy)
