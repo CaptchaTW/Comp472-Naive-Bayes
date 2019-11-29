@@ -132,7 +132,10 @@ for item in list_high_innacuracy:
     print(guessed_labels[item])
     print("The guessed document is:", end = '')
     print(eval_docs[item])
-#Task 4:
-#
 print("The accuracy of each class is:",end = '')
 print(class_list_accuracy)
+#Task 4
+# The document possesses mainly words that are mainly classified in the other sentiment class in the training set.
+# This makes the algorithm think that the document belongs to the wrong class
+# In summary, the training set used to train the naive bayes model will misclassify documents that do not follow the
+# general word polarity of the training set used.
