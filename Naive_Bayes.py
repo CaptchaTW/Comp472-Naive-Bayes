@@ -112,3 +112,5 @@ for item in list_high_innacuracy:
     print(eval_labels[item])
     print(guessed_labels[item])
     print(eval_docs[item])
+#Task 4:
+#
