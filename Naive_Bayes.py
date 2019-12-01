@@ -120,11 +120,11 @@ eval_docs = all_docs[split_point:]
 eval_labels = all_labels[split_point:]
 log_prob,label_log_prob = train_documents(train_docs,train_labels)
 guessed_labels = classify_documents(eval_docs,log_prob,label_log_prob)
-accuracy,index = accuracy(eval_labels,guessed_labels)
+accuracy_,index = accuracy(eval_labels,guessed_labels)
 list_high_innacuracy = find_high_error(eval_docs,index,log_prob,label_log_prob)
 class_list_accuracy = class_accuracy(eval_labels,guessed_labels)
 print("The accuracy of the classifier on the test set is: ", end = '')
-print(accuracy)
+print(accuracy_)
 for item in list_high_innacuracy:
     print("The correct label is:", end = '')
     print(eval_labels[item])
@@ -139,3 +139,9 @@ print(class_list_accuracy)
 # This makes the algorithm think that the document belongs to the wrong class
 # In summary, the training set used to train the naive bayes model will misclassify documents that do not follow the
 # general word polarity of the training set used.
+
+#potential demo needed code
+#docs,labels2 = read_document("demo.txt")
+#guessed_labels1 = classify_documents(docs,log_prob,label_log_prob)
+#accuracy1,index1= accuracy(labels2,guessed_labels1)
+#print(accuracy1)
